@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boutique — MH picture</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── PAGE-SPECIFIC: CATALOGUE ── */
+
+    .page-banner {
+      background: var(--anthracite);
+      padding: 60px 0;
+      text-align: center;
+    }
+    .page-banner h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      color: var(--cream);
+      margin: 12px 0 10px;
+    }
+    .page-banner p { font-size: 13px; color: rgba(245,242,233,0.55); letter-spacing: 0.5px; }
+    .page-banner .label-caps { color: var(--olive-light); }
+
+    /* FILTER BAR */
+    .filter-bar {
+      background: var(--cream-dark);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 70px;
+      z-index: 100;
+    }
+    .filter-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 48px;
+      max-width: 1280px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .filter-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    .filter-tab {
+      padding: 8px 18px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--gray);
+      transition: all var(--transition);
+      font-family: var(--font-body);
+    }
+    .filter-tab:hover { border-color: var(--olive); color: var(--anthracite); }
+    .filter-tab.active { background: var(--anthracite); color: var(--cream); border-color: var(--anthracite); }
+
+    .filter-right { display: flex; align-items: center; gap: 16px; }
+    .result-count { font-size: 12px; color: var(--gray); letter-spacing: 0.5px; }
+    .sort-select {
+      padding: 8px 14px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--anthracite);
+      font-family: var(--font-body);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* LAYOUT */
+    .catalogue-layout {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 48px 48px 100px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* SIDEBAR FILTERS */
+    .sidebar { position: sticky; top: 140px; }
+    .sidebar-section { margin-bottom: 36px; }
+    .sidebar-title {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--anthracite);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--gray);
+      transition: color var(--transition);
+    }
+    .sidebar-option:hover { color: var(--anthracite); }
+    .sidebar-option input { accent-color: var(--olive-dark); cursor: pointer; }
+
+    .price-range {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--gray);
+      margin-top: 8px;
+    }
+    .price-range input[type=range] {
+      width: 100%;
+      accent-color: var(--olive-dark);
+    }
+
+    .size-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .size-chip {
+      padding: 6px 12px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-weight: 600;
+      color: var(--gray);
+      background: var(--white);
+    }
+    .size-chip:hover, .size-chip.active { background: var(--anthracite); color: var(--cream); border-color: var(--anthracite); }
+
+    /* PRODUCT GRID */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--gray);
+    }
+    .empty-state p { font-size: 14px; }
+
+    /* LOAD MORE */
+    .load-more-wrap { text-align: center; margin-top: 48px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 800px) {
+      .catalogue-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .filter-inner { padding: 14px 24px; }
+    }
+    @media (max-width: 600px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .catalogue-layout { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-root"></div>
+
+  <!-- PAGE BANNER -->
+  <div class="page-banner">
+    <p class="label-caps">Hosarah</p>
+    <h1>Notre boutique</h1>
+    <p>Toutes nos affiches bibliques imprimées avec soin</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-inner">
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-cat="all" onclick="filterProducts('all')">Tout voir</button>
+        <button class="filter-tab" data-cat="Psaumes" onclick="filterProducts('Psaumes')">Psaumes</button>
+        <button class="filter-tab" data-cat="Évangiles" onclick="filterProducts('Évangiles')">Évangiles</button>
+        <button class="filter-tab" data-cat="Ancien Testament" onclick="filterProducts('Ancien Testament')">Ancien Testament</button>
+        <button class="filter-tab" data-cat="Nouveau Testament" onclick="filterProducts('Nouveau Testament')">Nouveau Testament</button>
+      </div>
+      <div class="filter-right">
+        <span class="result-count" id="result-count">8 produits</span>
+        <select class="sort-select" id="sort-select" onchange="sortProducts(this.value)">
+          <option value="default">Trier par</option>
+          <option value="price-asc">Prix croissant</option>
+          <option value="price-desc">Prix décroissant</option>
+          <option value="name">Nom A–Z</option>
+          <option value="new">Nouveautés</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATALOGUE LAYOUT -->
+  <div class="catalogue-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <p class="sidebar-title">Prix</p>
+        <div class="price-range">
+          <span>0€</span>
+          <input type="range" min="0" max="100" value="100" id="price-max" oninput="document.getElementById('price-val').textContent=this.value+'€'">
+          <span id="price-val">100€</span>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-title">Format</p>
+        <div class="size-chips">
+          <div class="size-chip active" onclick="toggleSize(this, 'A4')">A4</div>
+          <div class="size-chip active" onclick="toggleSize(this, 'A3')">A3</div>
+          <div class="size-chip active" onclick="toggleSize(this, 'A2')">A2</div>
+          <div class="size-chip" onclick="toggleSize(this, 'A1')">A1</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-title">Disponibilité</p>
+        <label class="sidebar-option">
+          <input type="checkbox" checked> En stock
+        </label>
+        <label class="sidebar-option">
+          <input type="checkbox"> Sur commande
+        </label>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-title">Offres</p>
+        <label class="sidebar-option">
+          <input type="checkbox"> Promotions
+        </label>
+        <label class="sidebar-option">
+          <input type="checkbox"> Nouveautés
+        </label>
+      </div>
+      <button class="btn btn-outline-dark" style="width:100%;font-size:10px" onclick="resetFilters()">
+        Réinitialiser
+      </button>
+    </aside>
+
+    <!-- GRID -->
+    <div>
+      <div class="products-grid" id="products-grid"></div>
+      <div class="load-more-wrap" id="load-more-wrap" style="display:none">
+        <button class="btn btn-outline-dark" onclick="loadMore()">Voir plus d'affiches</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-root"></div>
+
+  <script src="main.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = buildSharedNav('catalogue');
+    document.getElementById('footer-root').innerHTML = buildSharedFooter();
+    Cart.updateBadge();
+
+    let currentCat = 'all';
+    let filteredProducts = [...PRODUCTS];
+    let displayedCount = 6;
+
+    // Read URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('cat');
+    if (catParam) {
+      const catMap = { psaumes: 'Psaumes', evangiles: 'Évangiles', ancien: 'Ancien Testament', nouveau: 'Nouveau Testament' };
+      if (catMap[catParam]) {
+        currentCat = catMap[catParam];
+        document.querySelectorAll('.filter-tab').forEach(t => {
+          t.classList.toggle('active', t.dataset.cat === currentCat);
+        });
+      }
+    }
+
+    function filterProducts(cat) {
+      currentCat = cat;
+      document.querySelectorAll('.filter-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.cat === cat);
+      });
+      applyFilters();
+    }
+
+    function sortProducts(val) {
+      switch (val) {
+        case 'price-asc':  filteredProducts.sort((a,b) => a.price - b.price); break;
+        case 'price-desc': filteredProducts.sort((a,b) => b.price - a.price); break;
+        case 'name':       filteredProducts.sort((a,b) => a.name.localeCompare(b.name)); break;
+        case 'new':        filteredProducts.sort((a,b) => (b.badge==='Nouveau'?1:0)-(a.badge==='Nouveau'?1:0)); break;
+        default:           filteredProducts = [...PRODUCTS].filter(p => currentCat==='all' || p.collection===currentCat);
+      }
+      renderGrid();
+    }
+
+    function applyFilters() {
+      filteredProducts = currentCat === 'all'
+        ? [...PRODUCTS]
+        : PRODUCTS.filter(p => p.collection === currentCat);
+      displayedCount = 6;
+      renderGrid();
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('products-grid');
+      const visible = filteredProducts.slice(0, displayedCount);
+      document.getElementById('result-count').textContent = filteredProducts.length + ' produit' + (filteredProducts.length > 1 ? 's' : '');
+
+      if (filteredProducts.length === 0) {
+        grid.innerHTML = `<div class="empty-state"><p>Aucune affiche trouvée pour cette sélection.</p></div>`;
+        document.getElementById('load-more-wrap').style.display = 'none';
+        return;
+      }
+      grid.innerHTML = visible.map(p => renderProductCard(p)).join('');
+      document.getElementById('load-more-wrap').style.display =
+        filteredProducts.length > displayedCount ? 'block' : 'none';
+    }
+
+    function loadMore() {
+      displayedCount = Math.min(displayedCount + 3, filteredProducts.length);
+      renderGrid();
+    }
+
+    function toggleSize(el, size) {
+      el.classList.toggle('active');
+    }
+
+    function resetFilters() {
+      filterProducts('all');
+      document.getElementById('sort-select').value = 'default';
+      document.getElementById('price-max').value = 100;
+      document.getElementById('price-val').textContent = '100€';
+      document.querySelectorAll('.size-chip').forEach((c,i) => c.classList.toggle('active', i < 3));
+    }
+
+    // Initial render
+    applyFilters();
+  </script>
+</body>
+</html>

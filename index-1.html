@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MH Picture — Affiches Bibliques Premium</title>
+  <meta name="description" content="Des affiches bibliques d'art de haute qualité pour inspirer votre quotidien et embellir votre intérieur.">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── PAGE-SPECIFIC: INDEX ── */
+
+    /* HERO */
+    .hero {
+      min-height: calc(100vh - 110px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+    }
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 64px 80px 80px;
+      position: relative;
+    }
+    .hero-left::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--olive);
+    }
+    .hero h1 {
+      font-size: clamp(38px, 4.5vw, 60px);
+      font-weight: 500;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+    }
+    .hero h1 em { font-style: italic; color: var(--olive-dark); }
+    .hero-desc {
+      font-size: 15px;
+      color: var(--gray);
+      line-height: 1.8;
+      max-width: 420px;
+      margin-bottom: 40px;
+    }
+    .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-trust {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .trust-item { font-size: 11px; color: var(--gray); letter-spacing: 0.5px; }
+    .trust-item strong { display: block; font-size: 18px; color: var(--anthracite); font-family: var(--font-display); font-weight: 600; margin-bottom: 2px; }
+
+    .hero-right {
+      position: relative;
+      background: var(--cream-dark);
+      overflow: hidden;
+    }
+    .hero-main-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 6s ease;
+    }
+    .hero-right:hover .hero-main-img { transform: scale(1.04); }
+    .hero-img-caption {
+      position: absolute;
+      bottom: 32px;
+      right: 32px;
+      background: rgba(245,242,233,0.92);
+      backdrop-filter: blur(4px);
+      padding: 16px 20px;
+      max-width: 240px;
+    }
+    .hero-img-caption .label-caps { margin-bottom: 4px; }
+    .hero-img-caption p { font-size: 12px; color: var(--gray); }
+
+    /* SCROLL TICKER */
+    .ticker {
+      background: var(--olive);
+      color: var(--white);
+      padding: 12px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .ticker-track {
+      display: inline-block;
+      animation: ticker 25s linear infinite;
+    }
+    .ticker-track span {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin: 0 32px;
+    }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* FEATURED PRODUCTS */
+    .featured-section { padding: 100px 0; }
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    /* COLLECTIONS */
+    .collections-section { padding: 0 0 100px; }
+    .collections-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px;
+    }
+    .collection-banner {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .collection-banner.tall { grid-row: span 2; }
+    .collection-banner-img {
+      width: 100%;
+      height: 340px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+      background: var(--cream-dark);
+    }
+    .collection-banner.tall .collection-banner-img { height: 683px; }
+    .collection-banner:hover .collection-banner-img { transform: scale(1.04); }
+    .collection-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(44,44,42,0.6) 0%, transparent 60%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 32px;
+    }
+    .collection-banner h3 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .collection-banner a {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+    .collection-banner:hover a { color: var(--cream); }
+
+    /* WHY US */
+    .why-section {
+      background: var(--anthracite);
+      padding: 90px 0;
+      color: var(--cream);
+    }
+    .why-section .section-head h2 { color: var(--cream); }
+    .why-section .section-head p { color: rgba(245,242,233,0.6); }
+    .why-section .section-head .label-caps { color: var(--olive-light); }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-top: 60px;
+    }
+    .why-card { text-align: center; }
+    .why-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .why-card h4 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      color: var(--cream);
+      margin-bottom: 10px;
+    }
+    .why-card p { font-size: 13px; color: rgba(245,242,233,0.5); line-height: 1.7; }
+
+    /* VERSE QUOTE */
+    .verse-section {
+      padding: 100px 0;
+      text-align: center;
+      position: relative;
+    }
+    .verse-section::before, .verse-section::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 60px;
+      background: var(--olive);
+    }
+    .verse-section::before { top: 0; }
+    .verse-section::after { bottom: 0; }
+    .verse-quote {
+      font-family: var(--font-display);
+      font-size: clamp(20px, 3vw, 30px);
+      font-style: italic;
+      color: var(--anthracite);
+      max-width: 700px;
+      margin: 0 auto 16px;
+      line-height: 1.5;
+    }
+    .verse-ref { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--olive-dark); font-weight: 600; }
+
+    /* NEWSLETTER */
+    .newsletter-section {
+      background: var(--cream-dark);
+      padding: 90px 0;
+    }
+    .newsletter-inner {
+      max-width: 580px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .newsletter-inner h2 { font-size: clamp(26px, 3.5vw, 36px); margin: 12px 0 14px; }
+    .newsletter-inner p { font-size: 14px; color: var(--gray); margin-bottom: 32px; }
+    .newsletter-form-wrap {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--white);
+    }
+    .newsletter-form-wrap input {
+      flex: 1;
+      padding: 14px 20px;
+      font-size: 13px;
+      border: none;
+      background: none;
+      outline: none;
+      font-family: var(--font-body);
+      color: var(--anthracite);
+    }
+    .newsletter-form-wrap input::placeholder { color: var(--gray-light); }
+    .newsletter-form-wrap button {
+      padding: 14px 28px;
+      background: var(--anthracite);
+      color: var(--cream);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition);
+      font-family: var(--font-body);
+      white-space: nowrap;
+    }
+    .newsletter-form-wrap button:hover { background: var(--olive-dark); }
+    .newsletter-promise { font-size: 11px; color: var(--gray-light); margin-top: 14px; letter-spacing: 0.5px; }
+
+    /* INSTAGRAM PREVIEW */
+    .insta-section { padding: 80px 0 0; }
+    .insta-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 3px;
+      margin-top: 40px;
+    }
+    .insta-cell {
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--cream-dark);
+      cursor: pointer;
+      position: relative;
+    }
+    .insta-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .insta-cell:hover img { transform: scale(1.06); }
+    .insta-cell .insta-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(44,44,42,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity var(--transition);
+      font-size: 20px;
+      color: white;
+    }
+    .insta-cell:hover .insta-overlay { opacity: 1; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .featured-grid { grid-template-columns: repeat(2, 1fr); }
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 800px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-left { padding: 60px 24px; }
+      .hero-right { height: 50vh; }
+      .collections-grid { grid-template-columns: 1fr; }
+      .collection-banner.tall .collection-banner-img { height: 340px; }
+      .insta-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .featured-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .why-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV injected by JS -->
+  <div id="nav-root"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HERO SECTION
+  ══════════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <span class="label-caps">Nouvelle Collection 2024</span>
+      </div>
+      <h1 class="fade-up">La Parole de Dieu,<br><em>encadrée avec soin</em></h1>
+      <p class="hero-desc fade-up delay-1">
+        Des affiches d'art biblique de haute qualité, conçues pour inspirer votre quotidien et embellir votre intérieur avec foi et élégance.
+      </p>
+      <div class="hero-cta fade-up delay-2">
+        <a href="catalogue.html" class="btn btn-dark">Découvrir la collection</a>
+        <a href="catalogue.html?cat=psaumes" class="btn btn-outline-dark">Psaumes</a>
+      </div>
+      <div class="hero-trust fade-up delay-3">
+        <div class="trust-item"><strong>500+</strong> Affiches vendues</div>
+        <div class="trust-item"><strong>★ 4.9</strong> Note moyenne</div>
+        <div class="trust-item"><strong>100%</strong> Satisfait ou remboursé</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL de votre image héro principale -->
+      <img class="hero-main-img" src="images08.jpg" alt="Affiche biblique Hosarah"
+           onerror="this.parentElement.style.background='#EDE9DC';this.style.display='none'">
+      <div class="hero-img-caption">
+        <p class="label-caps">Nouveauté</p>
+        <p>Psaumes 23 — Collection Berger fidèle</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-track">
+      <span>Impression premium</span><span>✦</span>
+      <span>Livraison soignée</span><span>✦</span>
+      <span>Papier 250g/m²</span><span>✦</span>
+      <span>Versets authentiques</span><span>✦</span>
+      <span>Idée cadeau</span><span>✦</span>
+      <span>Livraison gratuite dès 50€</span><span>✦</span>
+      <span>Impression premium</span><span>✦</span>
+      <span>Livraison soignée</span><span>✦</span>
+      <span>Papier 250g/m²</span><span>✦</span>
+      <span>Versets authentiques</span><span>✦</span>
+      <span>Idée cadeau</span><span>✦</span>
+      <span>Livraison gratuite dès 50€</span><span>✦</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PRODUITS EN VEDETTE
+  ══════════════════════════════════════════════════════════ -->
+  <section class="featured-section">
+    <div class="container">
+      <div class="section-head">
+        <p class="label-caps">Sélection du moment</p>
+        <h2>Produits en vedette</h2>
+        <p>Nos affiches les plus aimées, imprimées sur papier premium mat 250g/m²</p>
+        <div class="divider-line"></div>
+      </div>
+      <div class="featured-grid" id="featured-grid">
+        <!-- Injected by JS -->
+      </div>
+      <div style="text-align:center;margin-top:48px">
+        <a href="catalogue.html" class="btn btn-outline-dark">Voir toute la collection</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VERSE QUOTE
+  ══════════════════════════════════════════════════════════ -->
+  <section class="verse-section">
+    <div class="container">
+      <p class="label-caps" style="margin-bottom:28px">Verset du moment</p>
+      <blockquote class="verse-quote">
+        « L'Éternel est mon berger : je ne manquerai de rien. »
+      </blockquote>
+      <p class="verse-ref">Psaumes 23:1</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MAGASINER PAR COLLECTION
+  ══════════════════════════════════════════════════════════ -->
+  <section class="collections-section">
+    <div class="container">
+      <div class="section-head">
+        <p class="label-caps">Collections</p>
+        <h2>Magasiner par collection</h2>
+        <p>Explorez nos thèmes soigneusement sélectionnés</p>
+        <div class="divider-line"></div>
+      </div>
+    </div>
+    <div style="padding:0 48px">
+      <div class="collections-grid">
+        <!-- Collection 1 : Psaumes (TALL) -->
+        <div class="collection-banner tall" onclick="window.location='catalogue.html?cat=psaumes'">
+          <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image collection Psaumes -->
+          <img class="collection-banner-img" src="images06.jpg" alt="Collection Psaumes"
+               onerror="this.style.background='#C4C49C';this.style.height='100%'">
+          <div class="collection-banner-overlay">
+            <p class="label-caps" style="color:rgba(255,255,255,0.7);margin-bottom:8px">12 affiches</p>
+            <h3>Psaumes</h3>
+            <a href="catalogue.html?cat=psaumes">Explorer →</a>
+          </div>
+        </div>
+        <!-- Collection 2 : Évangiles -->
+        <div class="collection-banner" onclick="window.location='catalogue.html?cat=evangiles'">
+          <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image collection Évangiles -->
+          <img class="collection-banner-img" src="image01.jpg" alt="Collection Évangiles"
+               onerror="this.style.background='#A8A680';this.style.height='100%'">
+          <div class="collection-banner-overlay">
+            <p class="label-caps" style="color:rgba(255,255,255,0.7);margin-bottom:8px">6 affiches</p>
+            <h3>Évangiles</h3>
+            <a href="catalogue.html?cat=evangiles">Explorer →</a>
+          </div>
+        </div>
+        <!-- Collection 3 : Ancien Testament -->
+        <div class="collection-banner" onclick="window.location='catalogue.html?cat=ancien'">
+          <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image collection Ancien Testament -->
+          <img class="collection-banner-img" src="images02.jpg" alt="Collection Ancien Testament"
+               onerror="this.style.background='#8A8A65';this.style.height='100%'">
+          <div class="collection-banner-overlay">
+            <p class="label-caps" style="color:rgba(255,255,255,0.7);margin-bottom:8px">8 affiches</p>
+            <h3>Ancien Testament</h3>
+            <a href="catalogue.html?cat=ancien">Explorer →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       POURQUOI MH picutre?
+  ══════════════════════════════════════════════════════════ -->
+  <section class="why-section">
+    <div class="container">
+      <div class="section-head">
+        <p class="label-caps">Notre engagement</p>
+        <h2>Pourquoi choisir MH picture ?</h2>
+        <p>Qualité, authenticité et livraison soignée à chaque commande</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card">
+          <span class="why-icon">🖼️</span>
+          <h4>Impression Premium</h4>
+          <p>Papier mat épais 250g/m² avec encres pigmentées longue durée. Rendu professionnel garanti.</p>
+        </div>
+        <div class="why-card">
+          <span class="why-icon">📖</span>
+          <h4>Versets Authentiques</h4>
+          <p>Chaque verset est tiré de la Bible Louis Segond, avec fidélité et respect du texte sacré.</p>
+        </div>
+        <div class="why-card">
+          <span class="why-icon">📦</span>
+          <h4>Livraison Sécurisée</h4>
+          <p>Emballage rigide anti-pli spécialement conçu. Livraison suivie en 3 à 5 jours ouvrés.</p>
+        </div>
+        <div class="why-card">
+          <span class="why-icon">🎁</span>
+          <h4>Idée Cadeau</h4>
+          <p>Emballage cadeau disponible sur demande. Parfait pour un baptême, anniversaire ou Noël.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       NEWSLETTER
+  ══════════════════════════════════════════════════════════ -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-inner">
+        <p class="label-caps">Restez inspiré</p>
+        <h2>La Parole dans votre boîte mail</h2>
+        <p>Recevez nos nouvelles affiches, versets du moment et offres exclusives chaque semaine.</p>
+        <div id="newsletter-form">
+          <div class="newsletter-form-wrap">
+            <input type="email" id="nl-email" placeholder="Votre adresse e-mail" aria-label="Email newsletter">
+            <button onclick="subscribeNewsletter(document.getElementById('nl-email').value, document.getElementById('newsletter-form'))">
+              S'inscrire
+            </button>
+          </div>
+        </div>
+        <p class="newsletter-promise">🔒 Aucun spam. Désinscription en 1 clic à tout moment.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       INSTAGRAM STRIP
+  ══════════════════════════════════════════════════════════ -->
+  <section class="insta-section">
+    <div class="container">
+      <div class="section-head">
+        <p class="label-caps">Instagram</p>
+        <h2>@hosarah.affiches</h2>
+        <p>Rejoignez notre communauté et partagez votre intérieur inspiré</p>
+      </div>
+    </div>
+    <div class="insta-grid">
+      <!-- REPLACE: Les 6 images ci-dessous par vos photos Instagram réelles -->
+      <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image Instagram 1 -->
+      <div class="insta-cell"><img src="PLACEHOLDER_IMAGE_URL" alt="Instagram 1" onerror="this.parentElement.style.background='#C4C49C'"><div class="insta-overlay">📷</div></div>
+      <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image Instagram 2 -->
+      <div class="insta-cell"><img src="PLACEHOLDER_IMAGE_URL" alt="Instagram 2" onerror="this.parentElement.style.background='#A8A680'"><div class="insta-overlay">📷</div></div>
+      <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image Instagram 3 -->
+      <div class="insta-cell"><img src="PLACEHOLDER_IMAGE_URL" alt="Instagram 3" onerror="this.parentElement.style.background='#8A8A65'"><div class="insta-overlay">📷</div></div>
+      <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image Instagram 4 -->
+      <div class="insta-cell"><img src="PLACEHOLDER_IMAGE_URL" alt="Instagram 4" onerror="this.parentElement.style.background='#C4C49C'"><div class="insta-overlay">📷</div></div>
+      <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image Instagram 5 -->
+      <div class="insta-cell"><img src="PLACEHOLDER_IMAGE_URL" alt="Instagram 5" onerror="this.parentElement.style.background='#A8A680'"><div class="insta-overlay">📷</div></div>
+      <!-- REPLACE: src="PLACEHOLDER_IMAGE_URL" → URL image Instagram 6 -->
+      <div class="insta-cell"><img src="PLACEHOLDER_IMAGE_URL" alt="Instagram 6" onerror="this.parentElement.style.background='#8A8A65'"><div class="insta-overlay">📷</div></div>
+    </div>
+  </section>
+
+  <!-- FOOTER injected by JS -->
+  <div id="footer-root"></div>
+
+  <script src="main.js"></script>
+  <script>
+    // Inject nav & footer
+    document.getElementById('nav-root').innerHTML = buildSharedNav('home');
+    document.getElementById('footer-root').innerHTML = buildSharedFooter();
+
+    // Render featured products (first 4)
+    const featuredGrid = document.getElementById('featured-grid');
+    featuredGrid.innerHTML = PRODUCTS.slice(0, 4).map(p => renderProductCard(p)).join('');
+
+    // Init cart badge
+    Cart.updateBadge();
+  </script>
+</body>
+</html>

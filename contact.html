@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — MH picture </title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── PAGE-SPECIFIC: CONTACT ── */
+
+    .contact-hero {
+      background: var(--anthracite);
+      padding: 80px 0 100px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 100%, rgba(168,166,128,0.2), transparent 70%);
+    }
+    .contact-hero h1 {
+      font-size: clamp(32px, 4.5vw, 52px);
+      color: var(--cream);
+      position: relative;
+    }
+    .contact-hero p {
+      font-size: 15px;
+      color: rgba(245,242,233,0.55);
+      margin-top: 14px;
+      position: relative;
+    }
+    .contact-hero .label-caps { color: var(--olive-light); position: relative; }
+
+    /* FLOATING CARD */
+    .contact-card-wrap {
+      position: relative;
+      margin-top: -60px;
+      padding-bottom: 100px;
+    }
+    .contact-card {
+      background: var(--white);
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      box-shadow: 0 24px 80px rgba(44,44,42,0.12);
+    }
+
+    /* LEFT: INFO */
+    .contact-info {
+      background: var(--cream-dark);
+      padding: 56px 48px;
+      border-right: 1px solid var(--border);
+    }
+    .contact-info h2 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      margin: 12px 0 20px;
+    }
+    .contact-info p {
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.8;
+      margin-bottom: 40px;
+    }
+
+    .contact-detail {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .contact-detail-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--olive-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .contact-detail-body h4 {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--anthracite);
+      margin-bottom: 4px;
+    }
+    .contact-detail-body p {
+      font-size: 13px;
+      color: var(--gray);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .contact-detail-body a { color: var(--olive-dark); }
+
+    .contact-social { margin-top: 40px; }
+    .contact-social h4 {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--anthracite);
+    }
+
+    /* RIGHT: FORM */
+    .contact-form-wrap {
+      padding: 56px 48px;
+    }
+    .contact-form-wrap h2 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      margin: 12px 0 32px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--anthracite);
+      margin-bottom: 8px;
+    }
+    .form-label .required { color: var(--olive-dark); }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 13px;
+      border: 1.5px solid var(--border);
+      background: var(--cream);
+      color: var(--anthracite);
+      font-family: var(--font-body);
+      outline: none;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--olive);
+      background: var(--white);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--gray-light); }
+    .form-select { cursor: pointer; }
+    .form-textarea { resize: vertical; min-height: 140px; }
+
+    .form-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .form-checkbox input { accent-color: var(--olive-dark); margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+    .form-checkbox label { font-size: 12px; color: var(--gray); line-height: 1.6; }
+    .form-checkbox label a { color: var(--olive-dark); }
+
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--anthracite);
+      color: var(--cream);
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition);
+      font-family: var(--font-body);
+    }
+    .btn-submit:hover { background: var(--olive-dark); }
+
+    /* SUCCESS STATE */
+    .form-success {
+      text-align: center;
+      padding: 60px 20px;
+      display: none;
+    }
+    .form-success .success-icon {
+      font-size: 52px;
+      margin-bottom: 16px;
+    }
+    .form-success h3 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    .form-success p { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+    /* FAQ */
+    .faq-section { padding: 80px 0 100px; }
+    .faq-section .section-head { margin-bottom: 48px; }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .faq-item {
+      border: 1px solid var(--border);
+      background: var(--white);
+    }
+    .faq-q {
+      padding: 20px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background var(--transition);
+    }
+    .faq-q:hover { background: var(--cream-dark); }
+    .faq-q .faq-arrow { font-size: 18px; transition: transform var(--transition); color: var(--olive-dark); }
+    .faq-item.open .faq-arrow { transform: rotate(45deg); }
+    .faq-a {
+      padding: 0 24px;
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.7;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding: 0 24px 20px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 800px) {
+      .contact-card { grid-template-columns: 1fr; }
+      .contact-info { border-right: none; border-bottom: 1px solid var(--border); padding: 40px 28px; }
+      .contact-form-wrap { padding: 40px 28px; }
+      .form-row { grid-template-columns: 1fr; }
+      .faq-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-root"></div>
+
+  <!-- HERO -->
+  <div class="contact-hero">
+    <div class="container">
+      <p class="label-caps">Nous contacter</p>
+      <h1>Comment pouvons-nous<br><em style="font-style:italic;color:var(--olive-light)">vous aider ?</em></h1>
+      <p>Notre équipe est disponible du lundi au vendredi, 9h–18h</p>
+    </div>
+  </div>
+
+  <!-- CONTACT CARD -->
+  <div class="contact-card-wrap">
+    <div class="container">
+      <div class="contact-card">
+
+        <!-- LEFT: INFO -->
+        <div class="contact-info">
+          <p class="label-caps">Coordonnées</p>
+          <h2>Parlons-nous</h2>
+          <p>Une question sur votre commande, un projet sur-mesure, ou simplement l'envie d'échanger ? Nous sommes là.</p>
+
+          <div class="contact-detail">
+            <div class="contact-detail-icon">📧</div>
+            <div class="contact-detail-body">
+              <h4>Email</h4>
+              <!-- REPLACE: Remplacez l'email par le vôtre -->
+              <p><a href="mailto:contact@hosarah.com">contact@hosarah.com</a></p>
+              <p style="font-size:11px;margin-top:4px">Réponse sous 24–48h</p>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="contact-detail-icon">📱</div>
+            <div class="contact-detail-body">
+              <h4>WhatsApp</h4>
+              <!-- REPLACE: Remplacez par votre numéro WhatsApp -->
+              <p><a href="https://wa.me/33600000000">+33 6 00 00 00 00</a></p>
+              <p style="font-size:11px;margin-top:4px">Lun–Ven, 9h–18h</p>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="contact-detail-icon">⏰</div>
+            <div class="contact-detail-body">
+              <h4>Horaires</h4>
+              <p>Lundi – Vendredi<br>9h00 – 18h00 (CET)</p>
+            </div>
+          </div>
+
+          <div class="contact-social">
+            <h4>Réseaux sociaux</h4>
+            <div class="social-row">
+              <a href="#" class="social-btn" title="Instagram">📷</a>
+              <a href="#" class="social-btn" title="Facebook">📘</a>
+              <a href="#" class="social-btn" title="TikTok">🎵</a>
+              <a href="#" class="social-btn" title="Pinterest">📌</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: FORM -->
+        <div class="contact-form-wrap">
+          <p class="label-caps">Formulaire</p>
+          <h2>Envoyez-nous un message</h2>
+
+          <div id="contact-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="cf-name">Prénom <span class="required">*</span></label>
+                <input class="form-input" type="text" id="cf-name" placeholder="Marie">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cf-lname">Nom <span class="required">*</span></label>
+                <input class="form-input" type="text" id="cf-lname" placeholder="Dupont">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cf-email">Email <span class="required">*</span></label>
+              <input class="form-input" type="email" id="cf-email" placeholder="marie@exemple.fr">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cf-subject">Sujet <span class="required">*</span></label>
+              <select class="form-select" id="cf-subject">
+                <option value="">-- Choisir un sujet --</option>
+                <option value="commande">Question sur une commande</option>
+                <option value="produit">Information sur un produit</option>
+                <option value="retour">Retour / Remboursement</option>
+                <option value="personnalise">Affiche sur-mesure</option>
+                <option value="partenariat">Partenariat / Collaboration</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cf-order">Numéro de commande (si applicable)</label>
+              <input class="form-input" type="text" id="cf-order" placeholder="CMD-1234567890">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cf-message">Message <span class="required">*</span></label>
+              <textarea class="form-textarea" id="cf-message" placeholder="Décrivez votre demande en détail…"></textarea>
+            </div>
+
+            <div class="form-checkbox">
+              <input type="checkbox" id="cf-rgpd">
+              <label for="cf-rgpd">J'accepte que mes données soient utilisées pour traiter ma demande, conformément à la <a href="#">politique de confidentialité</a>. <span class="required">*</span></label>
+            </div>
+
+            <button class="btn-submit" onclick="submitContactForm()">Envoyer le message</button>
+          </div>
+
+          <!-- SUCCESS -->
+          <div class="form-success" id="form-success">
+            <div class="success-icon">✓</div>
+            <h3>Message envoyé !</h3>
+            <p>Merci pour votre message. Notre équipe vous répondra dans les 24–48h.<br>Que Dieu vous bénisse !</p>
+            <button class="btn btn-olive" style="margin-top:24px" onclick="resetContactForm()">Envoyer un autre message</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <section class="faq-section">
+    <div class="container">
+      <div class="section-head">
+        <p class="label-caps">Questions fréquentes</p>
+        <h2>FAQ</h2>
+        <p>Les réponses aux questions les plus souvent posées</p>
+        <div class="divider-line"></div>
+      </div>
+      <div class="faq-grid">
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Quel papier utilisez-vous ? <span class="faq-arrow">+</span></div>
+          <div class="faq-a">Nous imprimons sur papier mat premium 250g/m² avec des encres pigmentées longue durée, résistantes à la lumière. Le rendu est net, professionnel et durable.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Combien de temps dure la livraison ? <span class="faq-arrow">+</span></div>
+          <div class="faq-a">La livraison standard prend 3 à 5 jours ouvrés après expédition. Nous proposons aussi une livraison express 24–48h. Chaque commande est suivie et vous recevrez un email avec le numéro de suivi.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Puis-je retourner une affiche ? <span class="faq-arrow">+</span></div>
+          <div class="faq-a">Oui, nous acceptons les retours sous 30 jours si l'article est en parfait état et dans son emballage d'origine. Contactez-nous et nous organisons le retour gratuitement en cas de défaut.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Proposez-vous des affiches personnalisées ? <span class="faq-arrow">+</span></div>
+          <div class="faq-a">Oui ! Nous pouvons créer une affiche avec le verset de votre choix, dans le style de notre catalogue. Contactez-nous via ce formulaire pour un devis personnalisé.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">L'emballage cadeau est-il disponible ? <span class="faq-arrow">+</span></div>
+          <div class="faq-a">Tout à fait ! Lors de votre commande, sélectionnez l'option "Emballage cadeau" dans votre panier. Vous pouvez aussi ajouter un message personnalisé.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">Livrez-vous à l'international ? <span class="faq-arrow">+</span></div>
+          <div class="faq-a">Oui, nous livrons dans toute l'Europe et dans plusieurs pays hors UE. Les frais et délais varient selon la destination. Contactez-nous pour plus d'informations.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-root"></div>
+
+  <script src="main.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = buildSharedNav('contact');
+    document.getElementById('footer-root').innerHTML = buildSharedFooter();
+    Cart.updateBadge();
+
+    function submitContactForm() {
+      const name    = document.getElementById('cf-name').value.trim();
+      const lname   = document.getElementById('cf-lname').value.trim();
+      const email   = document.getElementById('cf-email').value.trim();
+      const subject = document.getElementById('cf-subject').value;
+      const message = document.getElementById('cf-message').value.trim();
+      const rgpd    = document.getElementById('cf-rgpd').checked;
+
+      if (!name || !lname || !email || !subject || !message) {
+        showToast('Veuillez remplir tous les champs obligatoires.');
+        return;
+      }
+      if (!rgpd) {
+        showToast('Veuillez accepter la politique de confidentialité.');
+        return;
+      }
+
+      // REPLACE: Connectez ici à votre service d'envoi (EmailJS, Formspree, etc.)
+      // Exemple avec Formspree: fetch('https://formspree.io/f/YOUR_ID', {...})
+      const contactData = { name: name + ' ' + lname, email, subject, message, date: new Date().toLocaleString('fr-FR') };
+      console.log('📧 Contact form submitted:', contactData);
+
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    }
+
+    function resetContactForm() {
+      document.getElementById('contact-form').style.display = 'block';
+      document.getElementById('form-success').style.display = 'none';
+      ['cf-name','cf-lname','cf-email','cf-message','cf-order'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('cf-subject').value = '';
+      document.getElementById('cf-rgpd').checked = false;
+    }
+
+    function toggleFaq(el) {
+      el.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

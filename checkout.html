@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paiement — Hosarah</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=EUR&locale=fr_FR" defer></script>
+  <style>
+.co-page{background:var(--cream);min-height:calc(100vh - 70px);padding:40px 0 100px}
+.co-wrap{max-width:1080px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start}
+.back-link{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;color:var(--olive-dark);margin-bottom:28px;transition:gap .2s}
+.back-link:hover{gap:12px}
+.co-steps{display:flex;align-items:center;margin-bottom:32px}
+.co-step{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;color:var(--gray-light)}
+.co-step.active{color:var(--anthracite)}.co-step.done{color:var(--olive-dark)}
+.co-step-n{width:26px;height:26px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.co-step.done .co-step-n{background:var(--olive-dark);color:#fff;border-color:var(--olive-dark)}
+.co-step-line{flex:1;height:1px;background:var(--border);margin:0 12px;max-width:48px}
+.co-block{background:var(--white);border:1px solid var(--border);margin-bottom:18px;overflow:hidden}
+.co-block-head{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.co-block-title{font-family:var(--font-display);font-size:17px;font-weight:500;display:flex;align-items:center;gap:10px}
+.block-icon{width:30px;height:30px;border-radius:50%;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:14px}
+.co-block-body{padding:24px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fg{margin-bottom:12px}
+.lbl{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--anthracite);margin-bottom:6px}
+.lbl .req{color:var(--olive-dark)}
+.inp,.sel{width:100%;padding:11px 14px;font-size:13px;border:1.5px solid var(--border);background:var(--cream);color:var(--anthracite);font-family:var(--font-body);outline:none;transition:border-color .2s,background .2s;-webkit-appearance:none}
+.inp:focus,.sel:focus{border-color:var(--olive);background:var(--white)}
+.inp.err{border-color:#c0392b}
+.err-msg{font-size:11px;color:#c0392b;margin-top:4px;display:none}
+.inp.err ~ .err-msg{display:block}
+.ship-opts{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.ship-opt{display:flex;align-items:center;gap:12px;padding:13px 16px;border:1.5px solid var(--border);cursor:pointer;transition:border-color .2s,background .2s}
+.ship-opt:has(input:checked){border-color:var(--olive);background:rgba(168,166,128,.06)}
+.ship-opt input{accent-color:var(--olive-dark);cursor:pointer}
+.ship-opt-info{flex:1}
+.ship-opt-name{font-size:13px;font-weight:600;color:var(--anthracite)}
+.ship-opt-desc{font-size:11px;color:var(--gray);margin-top:1px}
+.ship-opt-price{font-size:13px;font-weight:700;color:var(--anthracite)}
+
+/* PAYMENT METHOD TABS */
+.pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.pay-method-btn{padding:14px 10px;border:2px solid var(--border);background:var(--white);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;font-family:var(--font-body)}
+.pay-method-btn:hover{border-color:var(--olive-light)}
+.pay-method-btn.selected{border-color:var(--olive-dark);background:rgba(168,166,128,.07)}
+.pay-method-btn .pm-icon{font-size:22px;line-height:1}
+.pay-method-btn .pm-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:var(--anthracite)}
+.pay-method-btn .pm-sub{font-size:9px;color:var(--gray);text-align:center;letter-spacing:.5px}
+.pm-check{position:absolute;top:6px;right:6px;width:16px;height:16px;background:var(--olive-dark);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700}
+.pay-method-btn.selected .pm-check{display:flex}
+.pay-method-btn.mtn.selected{border-color:#FFCC00;background:rgba(255,204,0,.06)}
+.pay-method-btn.mtn.selected .pm-check{background:#FFCC00;color:#333}
+.pay-method-btn.airtel.selected{border-color:#E30613;background:rgba(227,6,19,.05)}
+.pay-method-btn.airtel.selected .pm-check{background:#E30613}
+
+.pay-panel{display:none}.pay-panel.active{display:block}
+
+.stripe-wrap{border:1.5px solid var(--border);background:var(--cream);padding:12px 14px;transition:border-color .2s}
+.stripe-wrap.focused{border-color:var(--olive);background:var(--white)}
+#stripe-error{font-size:12px;color:#c0392b;margin-top:8px;display:none}
+.card-brands-row{display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.cbrand{padding:2px 7px;border:1px solid var(--border);border-radius:3px;font-size:10px;font-weight:800;color:var(--gray);letter-spacing:.5px;background:var(--white)}
+
+.paypal-panel{background:var(--cream-dark);border:1px dashed var(--border);padding:20px;text-align:center;margin-bottom:0}
+.paypal-panel p{font-size:13px;color:var(--gray);margin-bottom:16px;line-height:1.6}
+#paypal-button-container{min-height:48px}
+
+.momo-panel{background:var(--cream-dark);padding:20px}
+.momo-logo{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.momo-logo-badge{padding:5px 12px;border-radius:4px;font-size:13px;font-weight:900;letter-spacing:1px}
+.mtn-badge{background:#FFCC00;color:#1a1a00}.airtel-badge{background:#E30613;color:#fff}
+.momo-steps{background:var(--white);border:1px solid var(--border);padding:16px;margin-bottom:16px}
+.momo-step-item{display:flex;gap:12px;margin-bottom:12px;font-size:13px;color:var(--anthracite);align-items:flex-start;line-height:1.5}
+.momo-step-item:last-child{margin-bottom:0}
+.momo-step-num{width:22px;height:22px;border-radius:50%;background:var(--anthracite);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.mtn-num{background:#FFCC00;color:#1a1a00}.airtel-num{background:#E30613}
+.momo-phone-group{margin-top:16px}
+.momo-phone-wrap{display:flex;align-items:stretch}
+.country-prefix{padding:11px 14px;background:var(--anthracite);color:var(--cream);font-size:13px;font-weight:700;border:1.5px solid var(--anthracite);white-space:nowrap;flex-shrink:0}
+.momo-phone-wrap .inp{border-left:none;border-radius:0}
+.momo-ussd-box{background:var(--anthracite);color:var(--cream);padding:14px 18px;margin-top:14px;font-size:13px;line-height:1.7;display:none}
+.momo-ussd-box strong{font-size:18px;letter-spacing:2px;font-family:monospace;display:block;margin:6px 0}
+.momo-ussd-box.show{display:block}
+.momo-confirm-btn{width:100%;margin-top:14px;padding:13px;border:none;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:opacity .2s,transform .15s}
+.momo-confirm-btn:active{transform:scale(.99)}
+.mtn-confirm{background:#FFCC00;color:#1a1a00}.airtel-confirm{background:#E30613;color:#fff}
+.momo-confirm-btn:hover{opacity:.88}
+
+.secure-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray);margin-top:12px}
+.cgv-row{display:flex;align-items:flex-start;gap:10px;margin:20px 0 0}
+.cgv-row input{accent-color:var(--olive-dark);margin-top:2px;cursor:pointer;flex-shrink:0}
+.cgv-row label{font-size:12px;color:var(--gray);cursor:pointer;line-height:1.6}
+.cgv-row a{color:var(--olive-dark);text-decoration:underline}
+
+.btn-pay-main{width:100%;padding:17px;border:none;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:800;cursor:pointer;font-family:var(--font-body);transition:background .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px}
+.btn-pay-main.stripe-mode{background:var(--anthracite);color:var(--cream)}
+.btn-pay-main.paypal-mode{background:#FFC439;color:#003087}
+.btn-pay-main:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+.btn-pay-main:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.btn-pay-main.loading .btn-spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SUMMARY */
+.co-summary{background:var(--white);border:1px solid var(--border);position:sticky;top:90px}
+.co-sum-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.co-sum-head h3{font-family:var(--font-display);font-size:17px;font-weight:500}
+.sum-toggle{font-size:11px;color:var(--olive-dark);cursor:pointer}
+.co-sum-items{padding:14px 22px}
+.sum-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.sum-item:last-child{border-bottom:none}
+.sum-img-wrap{position:relative;flex-shrink:0}
+.sum-img{width:58px;height:72px;object-fit:cover;background:var(--cream-dark);display:block}
+.sum-qty{position:absolute;top:-5px;right:-5px;width:18px;height:18px;background:var(--anthracite);color:#fff;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sum-item-name{font-size:12px;font-weight:700;margin-bottom:3px;line-height:1.3}
+.sum-item-var{font-size:10px;color:var(--gray)}
+.sum-item-price{margin-left:auto;font-size:13px;font-weight:700;white-space:nowrap}
+.co-coupon{padding:14px 22px;border-top:1px solid var(--border);display:flex}
+.co-coupon input{flex:1;padding:9px 12px;font-size:12px;border:1.5px solid var(--border);border-right:none;background:var(--cream);font-family:var(--font-body);outline:none;color:var(--anthracite)}
+.co-coupon input:focus{border-color:var(--olive)}
+.co-coupon button{padding:9px 14px;background:var(--anthracite);color:var(--cream);border:none;font-size:10px;letter-spacing:1.5px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:background .2s}
+.co-coupon button:hover{background:var(--olive-dark)}
+.co-sum-totals{padding:14px 22px;border-top:1px solid var(--border)}
+.sum-line{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:var(--gray)}
+.sum-line.total{font-size:16px;font-weight:800;color:var(--anthracite);border-top:1px solid var(--border);padding-top:12px;margin-top:8px}
+.sum-line.free-ship{color:var(--olive-dark);font-weight:600}
+.currency-row{padding:12px 22px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray);flex-wrap:wrap}
+.cbadge{padding:3px 9px;border:1px solid var(--border);font-size:10px;font-weight:700;cursor:pointer;transition:all .2s;background:var(--white);color:var(--anthracite)}
+.cbadge.active{background:var(--anthracite);color:var(--cream);border-color:var(--anthracite)}
+.co-trust{margin-top:18px;padding:18px 22px;background:var(--white);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.trust-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gray)}
+
+/* SUCCESS */
+#success-screen{display:none;max-width:600px;margin:60px auto;text-align:center;padding:0 32px}
+.success-anim{width:80px;height:80px;border-radius:50%;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 24px;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+#success-screen h2{font-family:var(--font-display);font-size:30px;margin-bottom:12px}
+#success-screen p{font-size:14px;color:var(--gray);line-height:1.8;margin-bottom:8px}
+.order-ref{background:var(--cream-dark);border:1px solid var(--border);padding:16px 24px;margin:20px 0}
+.order-ref span{font-size:10px;letter-spacing:2px;color:var(--gray);text-transform:uppercase}
+.order-ref strong{display:block;font-family:var(--font-display);font-size:22px;margin-top:4px}
+.success-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+
+@media(max-width:900px){.co-wrap{grid-template-columns:1fr;padding:0 20px}.co-summary{position:static}}
+@media(max-width:500px){.co-wrap{padding:0 14px}.row2{grid-template-columns:1fr}.pay-methods{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<div id="nav-root"></div>
+<div class="co-page">
+<div id="main-checkout">
+<div class="co-wrap">
+
+  <!-- COLONNE GAUCHE -->
+  <div>
+    <a href="catalogue.html" class="back-link">← Retour à la boutique</a>
+    <div class="co-steps">
+      <div class="co-step done"><div class="co-step-n">✓</div><span>Panier</span></div>
+      <div class="co-step-line"></div>
+      <div class="co-step active"><div class="co-step-n">2</div><span>Infos</span></div>
+      <div class="co-step-line"></div>
+      <div class="co-step active"><div class="co-step-n">3</div><span>Livraison</span></div>
+      <div class="co-step-line"></div>
+      <div class="co-step active"><div class="co-step-n">4</div><span>Paiement</span></div>
+    </div>
+
+    <!-- BLOC 1: CLIENT -->
+    <div class="co-block">
+      <div class="co-block-head">
+        <div class="co-block-title"><div class="block-icon">👤</div>Vos informations</div>
+      </div>
+      <div class="co-block-body">
+        <div class="row2">
+          <div class="fg">
+            <label class="lbl" for="i-fname">Prénom <span class="req">*</span></label>
+            <input class="inp" type="text" id="i-fname" placeholder="Marie" autocomplete="given-name">
+            <p class="err-msg">Champ requis</p>
+          </div>
+          <div class="fg">
+            <label class="lbl" for="i-lname">Nom <span class="req">*</span></label>
+            <input class="inp" type="text" id="i-lname" placeholder="Mbemba" autocomplete="family-name">
+            <p class="err-msg">Champ requis</p>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="lbl" for="i-email">Email <span class="req">*</span></label>
+          <input class="inp" type="email" id="i-email" placeholder="marie@exemple.com" autocomplete="email">
+          <p class="err-msg">Email invalide</p>
+        </div>
+        <div class="fg">
+          <label class="lbl" for="i-phone">Téléphone / WhatsApp</label>
+          <input class="inp" type="tel" id="i-phone" placeholder="+242 06 000 0000" autocomplete="tel">
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOC 2: ADRESSE -->
+    <div class="co-block">
+      <div class="co-block-head">
+        <div class="co-block-title"><div class="block-icon">📍</div>Adresse de livraison</div>
+      </div>
+      <div class="co-block-body">
+        <div class="fg">
+          <label class="lbl" for="i-addr">Adresse <span class="req">*</span></label>
+          <input class="inp" type="text" id="i-addr" placeholder="Avenue des Trois Martyrs" autocomplete="street-address">
+          <p class="err-msg">Champ requis</p>
+        </div>
+        <div class="fg">
+          <label class="lbl" for="i-addr2">Complément</label>
+          <input class="inp" type="text" id="i-addr2" placeholder="Quartier, immeuble…">
+        </div>
+        <div class="row2">
+          <div class="fg">
+            <label class="lbl" for="i-city">Ville <span class="req">*</span></label>
+            <input class="inp" type="text" id="i-city" placeholder="Brazzaville" autocomplete="address-level2">
+            <p class="err-msg">Champ requis</p>
+          </div>
+          <div class="fg">
+            <label class="lbl" for="i-country">Pays <span class="req">*</span></label>
+            <select class="sel" id="i-country" autocomplete="country" onchange="onCountryChange(this.value)">
+              <option value="CG" selected>🇨🇬 Congo-Brazzaville</option>
+              <option value="CD">🇨🇩 RD Congo</option>
+              <option value="CM">🇨🇲 Cameroun</option>
+              <option value="CI">🇨🇮 Côte d'Ivoire</option>
+              <option value="SN">🇸🇳 Sénégal</option>
+              <option value="GA">🇬🇦 Gabon</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="BE">🇧🇪 Belgique</option>
+              <option value="CH">🇨🇭 Suisse</option>
+              <option value="CA">🇨🇦 Canada</option>
+              <option value="OTHER">🌍 Autre pays</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <p class="lbl" style="margin-bottom:8px">Livraison <span class="req">*</span></p>
+          <div class="ship-opts">
+            <label class="ship-opt">
+              <input type="radio" name="shipping" value="standard" checked onchange="onShipChange(4.90)">
+              <div class="ship-opt-info">
+                <div class="ship-opt-name">Standard</div>
+                <div class="ship-opt-desc">7–14 jours ouvrés</div>
+              </div>
+              <span class="ship-opt-price">4,90 €</span>
+            </label>
+            <label class="ship-opt">
+              <input type="radio" name="shipping" value="express" onchange="onShipChange(14.90)">
+              <div class="ship-opt-info">
+                <div class="ship-opt-name">Express DHL/EMS</div>
+                <div class="ship-opt-desc">3–5 jours ouvrés</div>
+              </div>
+              <span class="ship-opt-price">14,90 €</span>
+            </label>
+            <label class="ship-opt">
+              <input type="radio" name="shipping" value="gift" onchange="onShipChange(14.90)">
+              <div class="ship-opt-info">
+                <div class="ship-opt-name">🎁 Cadeau + Express</div>
+                <div class="ship-opt-desc">Message manuscrit inclus, 3–5 jours</div>
+              </div>
+              <span class="ship-opt-price">14,90 €</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOC 3: PAIEMENT -->
+    <div class="co-block">
+      <div class="co-block-head">
+        <div class="co-block-title"><div class="block-icon">💳</div>Mode de paiement</div>
+      </div>
+      <div class="co-block-body">
+
+        <div class="pay-methods">
+          <button class="pay-method-btn selected" id="pm-stripe" onclick="selectPay('stripe')">
+            <div class="pm-check">✓</div>
+            <div class="pm-icon">💳</div>
+            <div class="pm-label">Carte</div>
+            <div class="pm-sub">Visa · MC · Amex</div>
+          </button>
+          <button class="pay-method-btn" id="pm-paypal" onclick="selectPay('paypal')">
+            <div class="pm-check">✓</div>
+            <div class="pm-icon">🅿️</div>
+            <div class="pm-label">PayPal</div>
+            <div class="pm-sub">Compte PayPal</div>
+          </button>
+          <button class="pay-method-btn mtn" id="pm-mtn" onclick="selectPay('mtn')">
+            <div class="pm-check">✓</div>
+            <div class="pm-icon"><span style="background:#FFCC00;color:#1a1a00;font-weight:900;font-size:11px;padding:3px 7px;border-radius:3px;letter-spacing:1px">MTN</span></div>
+            <div class="pm-label">MTN MoMo</div>
+            <div class="pm-sub">Congo / Afrique</div>
+          </button>
+          <button class="pay-method-btn airtel" id="pm-airtel" onclick="selectPay('airtel')">
+            <div class="pm-check">✓</div>
+            <div class="pm-icon"><span style="background:#E30613;color:#fff;font-weight:900;font-size:11px;padding:3px 7px;border-radius:3px;letter-spacing:1px">AIRTEL</span></div>
+            <div class="pm-label">Airtel Money</div>
+            <div class="pm-sub">Congo-Brazzaville</div>
+          </button>
+        </div>
+
+        <!-- STRIPE PANEL -->
+        <div class="pay-panel active" id="panel-stripe">
+          <div class="card-brands-row">
+            <span class="cbrand">VISA</span>
+            <span class="cbrand">MASTERCARD</span>
+            <span class="cbrand">AMEX</span>
+            <span class="cbrand" style="font-size:9px">Apple Pay</span>
+            <span class="cbrand" style="font-size:9px">Google Pay</span>
+          </div>
+          <div class="stripe-wrap" id="stripe-card-el"></div>
+          <div id="stripe-error"></div>
+          <div class="secure-row"><span>🔒</span><span>Paiement sécurisé SSL 256-bit — données bancaires jamais stockées</span></div>
+        </div>
+
+        <!-- PAYPAL PANEL -->
+        <div class="pay-panel" id="panel-paypal">
+          <div class="paypal-panel">
+            <p>Cliquez sur le bouton PayPal ci-dessous pour finaliser votre paiement en toute sécurité sur le site PayPal.</p>
+            <div id="paypal-button-container"></div>
+          </div>
+        </div>
+
+        <!-- MTN PANEL -->
+        <div class="pay-panel" id="panel-mtn">
+          <div class="momo-panel">
+            <div class="momo-logo">
+              <span class="momo-logo-badge mtn-badge">MTN MoMo</span>
+              <span style="font-size:12px;color:var(--gray)">Congo-Brazzaville · +242</span>
+            </div>
+            <div class="momo-steps">
+              <div class="momo-step-item"><div class="momo-step-num mtn-num">1</div><span>Entrez votre numéro MTN Mobile Money ci-dessous</span></div>
+              <div class="momo-step-item"><div class="momo-step-num mtn-num">2</div><span>Cliquez <strong>« Envoyer la demande »</strong> — vous recevrez une notification push</span></div>
+              <div class="momo-step-item"><div class="momo-step-num mtn-num">3</div><span>Entrez votre <strong>PIN MTN MoMo</strong> pour confirmer le paiement</span></div>
+              <div class="momo-step-item"><div class="momo-step-num mtn-num">4</div><span>Commande confirmée automatiquement ✓</span></div>
+            </div>
+            <div class="momo-phone-group">
+              <label class="lbl">Numéro MTN MoMo <span class="req">*</span></label>
+              <div class="momo-phone-wrap">
+                <span class="country-prefix">🇨🇬 +242</span>
+                <input class="inp" type="tel" id="mtn-phone" placeholder="06 000 0000" maxlength="9">
+              </div>
+            </div>
+            <div class="momo-ussd-box show" id="mtn-ussd-box">
+              <p style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(245,242,233,0.6);margin-bottom:4px">Ou composez le code USSD :</p>
+              <strong>*150*1*1*<span id="mtn-merchant-num">06XXXXXXX</span>#</strong>
+              <p style="font-size:12px;color:rgba(245,242,233,0.75)">Montant : <span id="mtn-amt-show">—</span></p>
+            </div>
+            <button class="momo-confirm-btn mtn-confirm" id="mtn-submit-btn" onclick="submitMoMo('mtn')">📲 Envoyer la demande MTN MoMo</button>
+            <p style="font-size:11px;color:var(--gray);margin-top:10px;text-align:center">Aide : composez le <strong>*150#</strong> depuis votre téléphone MTN</p>
+          </div>
+        </div>
+
+        <!-- AIRTEL PANEL -->
+        <div class="pay-panel" id="panel-airtel">
+          <div class="momo-panel" style="border-left:3px solid #E30613">
+            <div class="momo-logo">
+              <span class="momo-logo-badge airtel-badge">AIRTEL MONEY</span>
+              <span style="font-size:12px;color:var(--gray)">Congo-Brazzaville · +242</span>
+            </div>
+            <div class="momo-steps">
+              <div class="momo-step-item"><div class="momo-step-num airtel-num">1</div><span>Entrez votre numéro Airtel Money ci-dessous</span></div>
+              <div class="momo-step-item"><div class="momo-step-num airtel-num">2</div><span>Cliquez <strong>« Envoyer la demande »</strong></span></div>
+              <div class="momo-step-item"><div class="momo-step-num airtel-num">3</div><span>Entrez votre <strong>PIN Airtel Money</strong> pour confirmer</span></div>
+              <div class="momo-step-item"><div class="momo-step-num airtel-num">4</div><span>Commande confirmée automatiquement ✓</span></div>
+            </div>
+            <div class="momo-phone-group">
+              <label class="lbl">Numéro Airtel Money <span class="req">*</span></label>
+              <div class="momo-phone-wrap">
+                <span class="country-prefix" style="background:#E30613;border-color:#E30613">🇨🇬 +242</span>
+                <input class="inp" type="tel" id="airtel-phone" placeholder="05 000 0000" maxlength="9">
+              </div>
+            </div>
+            <div class="momo-ussd-box show" id="airtel-ussd-box">
+              <p style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(245,242,233,0.6);margin-bottom:4px">Ou composez le code USSD :</p>
+              <strong>*500*6*<span id="airtel-merchant-num">05XXXXXXX</span>#</strong>
+              <p style="font-size:12px;color:rgba(245,242,233,0.75)">Montant : <span id="airtel-amt-show">—</span></p>
+            </div>
+            <button class="momo-confirm-btn airtel-confirm" id="airtel-submit-btn" onclick="submitMoMo('airtel')">📲 Envoyer la demande Airtel Money</button>
+            <p style="font-size:11px;color:var(--gray);margin-top:10px;text-align:center">Aide : composez le <strong>*500#</strong> depuis votre téléphone Airtel</p>
+          </div>
+        </div>
+
+        <div class="cgv-row">
+          <input type="checkbox" id="cgv">
+          <label for="cgv">J'accepte les <a href="#">Conditions Générales de Vente</a> et la <a href="#">politique de confidentialité</a>. <span style="color:var(--olive-dark)">*</span></label>
+        </div>
+
+        <button class="btn-pay-main stripe-mode" id="btn-pay" onclick="handlePay()">
+          <div class="btn-spinner"></div>
+          <span id="btn-pay-label">🔒 Payer — <span id="btn-pay-amount">0,00 €</span></span>
+        </button>
+        <p style="text-align:center;font-size:10px;color:var(--gray-light);margin-top:10px;letter-spacing:.5px">Sécurisé par Stripe · SSL 256-bit</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLONNE DROITE: RÉCAPITULATIF -->
+  <div>
+    <div class="co-summary">
+      <div class="co-sum-head">
+        <h3>Récapitulatif</h3>
+        <span class="sum-toggle" onclick="toggleSum()">▲ Masquer</span>
+      </div>
+      <div id="sum-body">
+        <div class="co-sum-items" id="sum-items"></div>
+        <div class="co-coupon">
+          <input type="text" id="coupon-inp" placeholder="Code promo">
+          <button onclick="applyCoupon()">OK</button>
+        </div>
+        <div class="co-sum-totals">
+          <div class="sum-line"><span>Sous-total</span><span id="st-sub">0,00 €</span></div>
+          <div class="sum-line" id="st-disc-row" style="display:none;color:#8B4513"><span>Réduction (<span id="st-disc-code"></span>)</span><span id="st-disc-amt"></span></div>
+          <div class="sum-line" id="st-ship-row"><span>Livraison</span><span id="st-ship">4,90 €</span></div>
+          <div class="sum-line total"><span>Total TTC</span><strong id="st-total">0,00 €</strong></div>
+        </div>
+        <div class="currency-row">
+          <span>Devise :</span>
+          <span class="cbadge active" onclick="setCurrency('EUR')">€ EUR</span>
+          <span class="cbadge" onclick="setCurrency('XAF')">FCFA</span>
+          <span class="cbadge" onclick="setCurrency('USD')">$ USD</span>
+        </div>
+      </div>
+    </div>
+    <div class="co-trust">
+      <div class="trust-row">🚚 Livraison internationale suivie</div>
+      <div class="trust-row">↩️ Retours acceptés 30 jours</div>
+      <div class="trust-row">🔒 Paiement 100% sécurisé</div>
+      <div class="trust-row">💬 Support WhatsApp disponible</div>
+      <div class="trust-row">🇨🇬 MTN & Airtel Money acceptés</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- SUCCÈS -->
+<div id="success-screen">
+  <div class="success-anim">✓</div>
+  <p class="label-caps" style="color:var(--olive-dark);margin-bottom:8px">Commande confirmée</p>
+  <h2>Merci pour votre commande !</h2>
+  <p>Paiement reçu. Confirmation envoyée à <strong id="s-email"></strong>.</p>
+  <div class="order-ref">
+    <span>Numéro de commande</span>
+    <strong id="s-order-id"></strong>
+  </div>
+  <p>Votre affiche sera expédiée dans 24–48h. Que Dieu vous bénisse ! 🙏</p>
+  <div class="success-btns">
+    <a href="catalogue.html" class="btn btn-outline-dark">Continuer les achats</a>
+    <a href="index.html" class="btn btn-dark">Accueil</a>
+  </div>
+</div>
+</div>
+
+<div id="footer-root"></div>
+<script src="main.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CHECKOUT.JS — Stripe + PayPal + MTN MoMo + Airtel Money
+   ★ Cherchez "REMPLACEZ" pour les 4 clés à configurer ★
+═══════════════════════════════════════════════════════════════ */
+
+document.getElementById('nav-root').innerHTML = buildSharedNav('');
+document.getElementById('footer-root').innerHTML = buildSharedFooter();
+Cart.updateBadge();
+
+/* ──────────────────────────────────────────────
+   ★ ÉTAPE 1 — REMPLACEZ CES 4 VALEURS ★
+────────────────────────────────────────────── */
+const CFG = {
+  // Stripe : https://dashboard.stripe.com/apikeys
+  stripeKey: 'pk_test_REMPLACEZ_VOTRE_CLE_STRIPE',
+  stripeBackend: 'https://votre-serveur.com/create-payment-intent',
+
+  // PayPal : https://developer.paypal.com/dashboard/applications
+  // (aussi dans la balise <script> PayPal en haut de page)
+  paypalClientId: 'YOUR_PAYPAL_CLIENT_ID',
+
+  // MTN MoMo : https://momodeveloper.mtn.com
+  mtnBackend: 'https://votre-serveur.com/mtn-payment',
+  mtnMerchantPhone: '06XXXXXXX', // ← Votre numéro MTN marchand
+
+  // Airtel Money : https://developers.airtel.africa
+  airtelBackend: 'https://votre-serveur.com/airtel-payment',
+  airtelMerchantPhone: '05XXXXXXX', // ← Votre numéro Airtel marchand
+};
+
+/* ── STATE ── */
+let stripe, cardEl, currentPay = 'stripe', shipCost = 4.90, discAmt = 0, discCode = '', cur = 'EUR', sumVis = true;
+const RATES  = { EUR: 1, XAF: 655.957, USD: 1.08 };
+const SYMS   = { EUR: '€', XAF: ' FCFA', USD: '$' };
+const PROMOS = { 'CONGO10': { pct:10 }, 'NOEL20': { pct:20 }, 'MERCI5': { fix:5 } };
+
+/* ── STRIPE INIT ── */
+function initStripe() {
+  if (!window.Stripe || CFG.stripeKey.includes('REMPLACEZ')) return;
+  stripe = Stripe(CFG.stripeKey);
+  const elms = stripe.elements({ fonts: [{ cssSrc:'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap' }] });
+  cardEl = elms.create('card', {
+    style: {
+      base: { fontFamily:'"Montserrat",sans-serif', fontSize:'14px', color:'#2C2C2A', '::placeholder':{ color:'#B0AFA8' }, iconColor:'#A8A680' },
+      invalid: { color:'#c0392b', iconColor:'#c0392b' }
+    }, hidePostalCode: false
+  });
+  cardEl.mount('#stripe-card-el');
+  cardEl.on('change', ({error}) => {
+    const e = document.getElementById('stripe-error');
+    if (error) { e.textContent = error.message; e.style.display='block'; }
+    else e.style.display='none';
+  });
+  cardEl.on('focus', ()=>document.getElementById('stripe-card-el').classList.add('focused'));
+  cardEl.on('blur',  ()=>document.getElementById('stripe-card-el').classList.remove('focused'));
+}
+
+/* ── PAYPAL INIT ── */
+function initPayPal() {
+  if (!window.paypal) return;
+  paypal.Buttons({
+    style: { layout:'vertical', color:'gold', shape:'rect', label:'paypal' },
+    createOrder: (d, a) => a.order.create({ purchase_units:[{ amount:{ value: getTotal().toFixed(2), currency_code:'EUR' }, description:'Hosarah — Affiches Bibliques' }] }),
+    onApprove: async (d, a) => {
+      const det = await a.order.capture();
+      showSuccess(document.getElementById('i-email').value, 'PP-' + det.id.substring(0,10));
+    },
+    onError: (e) => { console.error(e); showToast('Erreur PayPal. Essayez un autre mode de paiement.'); }
+  }).render('#paypal-button-container');
+}
+
+/* ── SELECT PAYMENT ── */
+function selectPay(m) {
+  currentPay = m;
+  ['stripe','paypal','mtn','airtel'].forEach(x => {
+    document.getElementById('pm-'+x).classList.toggle('selected', x===m);
+    document.getElementById('panel-'+x).classList.toggle('active', x===m);
+  });
+  const isMoMo = m==='mtn'||m==='airtel';
+  const btn = document.getElementById('btn-pay');
+  btn.style.display = isMoMo ? 'none' : 'flex';
+  if (m==='paypal') {
+    btn.className = 'btn-pay-main paypal-mode';
+    document.getElementById('btn-pay-label').innerHTML = '🅿️ Payer avec PayPal';
+    if (!document.getElementById('paypal-button-container').hasChildNodes()) initPayPal();
+  } else if (m==='stripe') {
+    btn.className = 'btn-pay-main stripe-mode';
+    updateBtnAmt();
+  }
+  if (isMoMo) {
+    const amtXAF = Math.round(getTotal() * RATES.XAF);
+    const s = getTotal().toFixed(2)+'€ ('+amtXAF.toLocaleString('fr-FR')+' FCFA)';
+    document.getElementById('mtn-amt-show').textContent = s;
+    document.getElementById('airtel-amt-show').textContent = s;
+    document.getElementById('mtn-merchant-num').textContent = CFG.mtnMerchantPhone;
+    document.getElementById('airtel-merchant-num').textContent = CFG.airtelMerchantPhone;
+  }
+}
+
+/* ── MOMO SUBMIT ── */
+async function submitMoMo(p) {
+  if (!validateForm()) return;
+  const phoneEl = document.getElementById(p+'-phone');
+  const phone = phoneEl.value.replace(/\s/g,'').trim();
+  if (!phone || phone.length < 8) {
+    phoneEl.classList.add('err');
+    showToast('Numéro '+(p==='mtn'?'MTN':'Airtel')+' invalide.'); return;
+  }
+  if (!document.getElementById('cgv').checked) { showToast('Acceptez les CGV.'); return; }
+
+  const btnId = p+'-submit-btn';
+  const btn = document.getElementById(btnId);
+  const orig = btn.textContent;
+  btn.textContent = '⏳ Envoi en cours…'; btn.disabled = true;
+
+  try {
+    /*
+      ════════════════════════════════════════════════════════
+      PRODUCTION — Décommentez le bloc correspondant
+
+      MTN MoMo API (https://momodeveloper.mtn.com) :
+      ────────────────────────────────────────────────────────
+      const res = await fetch(CFG.mtnBackend, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          amount: Math.round(getTotal() * 655.957),
+          currency: 'XAF',
+          phone: '+242' + phone,
+          externalId: 'CMD-' + Date.now(),
+          payerMessage: 'Hosarah Affiches Bibliques',
+          payeeNote: 'Commande client'
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Paiement refusé');
+
+      Airtel Money API (https://developers.airtel.africa) :
+      ────────────────────────────────────────────────────────
+      const res = await fetch(CFG.airtelBackend, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          reference: 'CMD-' + Date.now(),
+          subscriber: { country:'CG', currency:'XAF', msisdn: phone },
+          transaction: { amount: Math.round(getTotal()*655.957), country:'CG', currency:'XAF', id:'CMD-'+Date.now() }
+        })
+      });
+      const data = await res.json();
+      if (data.data?.transaction?.status !== 'TS') throw new Error('Paiement non confirmé');
+      ════════════════════════════════════════════════════════
+    */
+
+    // MODE DEMO — retire ce bloc en production
+    await new Promise(r => setTimeout(r, 2500));
+    const orderId = (p==='mtn'?'MTN':'AIR') + '-' + Date.now();
+    sendOrderNotification({ id:orderId, date:new Date().toLocaleString('fr-FR'), customer:gatherCustomer(), items:Cart.getItems(), total:getTotal().toFixed(2)+'€', paymentMethod: p==='mtn'?'MTN Mobile Money':'Airtel Money', phone:'+242'+phone });
+    showSuccess(document.getElementById('i-email').value, orderId);
+
+  } catch(e) {
+    console.error(e);
+    showToast('Erreur : '+e.message+'. Essayez le code USSD manuel ou un autre mode.');
+    btn.textContent = orig; btn.disabled = false;
+  }
+}
+
+/* ── STRIPE/PAYPAL PAY ── */
+async function handlePay() {
+  if (!validateForm()) return;
+  if (Cart.getItems().length===0) { showToast('Panier vide.'); return; }
+  const btn = document.getElementById('btn-pay');
+  btn.classList.add('loading'); btn.disabled = true;
+  const customer = gatherCustomer();
+  const total = getTotal();
+
+  try {
+    /*
+      ════════════════════════════════════════════════════════
+      STRIPE PRODUCTION — Décommentez :
+      ────────────────────────────────────────────────────────
+      const r = await fetch(CFG.stripeBackend, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ amount: Math.round(total*100), currency:'eur', email:customer.email })
+      });
+      const { clientSecret } = await r.json();
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardEl,
+          billing_details: { name:customer.firstName+' '+customer.lastName, email:customer.email,
+            address:{ line1:customer.address, postal_code:customer.zip||'', city:customer.city, country:customer.country } }
+        }
+      });
+      if (error) throw new Error(error.message);
+      if (paymentIntent.status==='succeeded') showSuccess(customer.email, paymentIntent.id);
+      ════════════════════════════════════════════════════════
+    */
+
+    // MODE DEMO
+    await new Promise(r => setTimeout(r, 2200));
+    const orderId = 'STR-' + Date.now();
+    sendOrderNotification({ id:orderId, date:new Date().toLocaleString('fr-FR'), customer, items:Cart.getItems(), total:total.toFixed(2)+'€', paymentMethod:'Carte Bancaire (Stripe)' });
+    showSuccess(customer.email, orderId);
+
+  } catch(e) {
+    const el = document.getElementById('stripe-error');
+    el.textContent = e.message || 'Erreur. Réessayez.'; el.style.display='block';
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+}
+
+/* ── VALIDATION ── */
+function validateForm() {
+  let ok = true;
+  [{id:'i-fname',fn:v=>v.length>0},{id:'i-lname',fn:v=>v.length>0},{id:'i-email',fn:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)},{id:'i-addr',fn:v=>v.length>0},{id:'i-city',fn:v=>v.length>0}]
+    .forEach(({id,fn})=>{ const el=document.getElementById(id); const v=fn(el.value.trim()); el.classList.toggle('err',!v); if(!v)ok=false; });
+  if(!ok){ showToast('Remplissez tous les champs requis.'); document.querySelector('.inp.err')?.scrollIntoView({behavior:'smooth',block:'center'}); }
+  if(!document.getElementById('cgv').checked){ showToast('Acceptez les CGV pour continuer.'); return false; }
+  return ok;
+}
+
+function gatherCustomer() {
+  return {
+    firstName: document.getElementById('i-fname').value.trim(),
+    lastName:  document.getElementById('i-lname').value.trim(),
+    email:     document.getElementById('i-email').value.trim(),
+    phone:     document.getElementById('i-phone').value.trim(),
+    address:   document.getElementById('i-addr').value.trim(),
+    address2:  document.getElementById('i-addr2').value.trim(),
+    city:      document.getElementById('i-city').value.trim(),
+    country:   document.getElementById('i-country').value,
+  };
+}
+
+/* ── SUCCESS ── */
+function showSuccess(email, orderId) {
+  document.getElementById('main-checkout').style.display='none';
+  const s=document.getElementById('success-screen'); s.style.display='block';
+  document.getElementById('s-email').textContent=email;
+  document.getElementById('s-order-id').textContent=orderId;
+  Cart.clear(); window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── SUMMARY ── */
+function getTotal(){ return Math.max(0, Cart.getTotal() - discAmt + (Cart.getTotal()>=50?0:shipCost)); }
+function fmt(e){ const v=e*RATES[cur]; return cur==='XAF'?Math.round(v).toLocaleString('fr-FR')+SYMS[cur]:v.toFixed(2).replace('.',',')+SYMS[cur]; }
+function updateBtnAmt(){ document.getElementById('btn-pay-amount').textContent=fmt(getTotal()); }
+
+function renderSummary() {
+  const items=Cart.getItems(), sub=Cart.getTotal(), free=sub>=50, ship=free?0:shipCost, total=sub-discAmt+ship;
+  document.getElementById('sum-items').innerHTML = items.length===0
+    ? '<p style="padding:20px;text-align:center;font-size:13px;color:var(--gray)">Panier vide — <a href="catalogue.html" style="color:var(--olive-dark)">voir la boutique</a></p>'
+    : items.map(i=>`<div class="sum-item"><div class="sum-img-wrap"><img class="sum-img" src="${i.img}" alt="${i.name}" onerror="this.style.background='#EDE9DC';this.removeAttribute('src')"><div class="sum-qty">${i.qty}</div></div><div style="flex:1"><div class="sum-item-name">${i.name}</div><div class="sum-item-var">${i.variant}</div></div><div class="sum-item-price">${fmt(i.price*i.qty)}</div></div>`).join('');
+  document.getElementById('st-sub').textContent=fmt(sub);
+  document.getElementById('st-ship').textContent=free?'Gratuit ✓':fmt(ship);
+  document.getElementById('st-total').textContent=fmt(total);
+  document.getElementById('st-ship-row').classList.toggle('free-ship',free);
+  if(discAmt>0){ document.getElementById('st-disc-row').style.display='flex'; document.getElementById('st-disc-code').textContent=discCode; document.getElementById('st-disc-amt').textContent='−'+fmt(discAmt); }
+  updateBtnAmt();
+}
+
+function onShipChange(cost){ shipCost=cost; renderSummary(); }
+function onCountryChange(c){
+  const isCG=c==='CG';
+  ['pm-mtn','pm-airtel'].forEach(id=>{ document.getElementById(id).style.opacity=isCG?'1':'0.45'; });
+  if(!isCG&&(currentPay==='mtn'||currentPay==='airtel')){ selectPay('stripe'); showToast('Mobile Money disponible au Congo-Brazzaville uniquement.'); }
+}
+function applyCoupon(){
+  const code=document.getElementById('coupon-inp').value.trim().toUpperCase(), p=PROMOS[code];
+  if(!p){ showToast('Code invalide.'); return; }
+  discCode=code; discAmt=p.pct?(Cart.getTotal()*p.pct/100):p.fix;
+  showToast('Code "'+code+'" appliqué !'); renderSummary();
+}
+function setCurrency(c){ cur=c; document.querySelectorAll('.cbadge').forEach(b=>b.classList.toggle('active',b.textContent.includes(c))); renderSummary(); }
+function toggleSum(){ sumVis=!sumVis; document.getElementById('sum-body').style.display=sumVis?'block':'none'; document.querySelector('.sum-toggle').textContent=sumVis?'▲ Masquer':'▼ Afficher'; }
+
+/* ── INIT ── */
+window.addEventListener('DOMContentLoaded', () => {
+  initStripe();
+  renderSummary();
+  if(window.paypal) initPayPal();
+});
+</script>
+</body>
+</html>
