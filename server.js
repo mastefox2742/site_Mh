@@ -141,3 +141,14 @@ app.listen(PORT, () => {
 });
 
 module.exports = app; // Exporté pour les tests (Jest, etc.)
+
+const path = require('path');
+
+// Indique à Express où se trouvent tes fichiers HTML/CSS
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Route pour envoyer le fichier index.html par défaut
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
